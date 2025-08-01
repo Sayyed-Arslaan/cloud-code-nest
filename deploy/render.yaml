@@ -1,0 +1,35 @@
+# Render.com Deployment Configuration
+# Upload this file to your Render dashboard
+
+services:
+  - type: web
+    name: cloudcode-server
+    env: docker
+    plan: starter  # or standard/pro for better performance
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PASSWORD
+        value: YOUR_SECURE_PASSWORD_HERE  # Change this!
+      - key: USER
+        value: coder
+      - key: WORKSPACE
+        value: /workspace
+      - key: PORT
+        value: 8080
+      - key: GIT_REPO
+        value: ""  # Optional: your-username/your-repo
+      - key: GIT_TOKEN
+        value: ""  # Optional: GitHub token for private repos
+    disk:
+      name: workspace-data
+      mountPath: /workspace
+      sizeGB: 20  # Adjust based on your needs (10-100GB available)
+    
+    # Health check endpoint
+    healthCheckPath: /healthz
+    
+    # Auto-deploy from GitHub
+    buildCommand: docker build -t cloudcode-server .
+    
+    # Custom start command (optional)
+    # startCommand: ./scripts/start.sh

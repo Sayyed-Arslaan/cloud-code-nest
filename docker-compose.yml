@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  cloudcode-server:
+    build: .
+    container_name: cloudcode-server
+    ports:
+      - "8080:8080"
+    environment:
+      - PASSWORD=${PASSWORD:-cloudcode123}
+      - USER=${USER:-coder}
+      - SUDO_PASSWORD=${SUDO_PASSWORD:-cloudcode123}
+      - WORKSPACE=${WORKSPACE:-/workspace}
+      - GIT_REPO=${GIT_REPO:-}
+      - GIT_TOKEN=${GIT_TOKEN:-}
+      - EXTENSIONS=${EXTENSIONS:-}
+    volumes:
+      # Persistent workspace
+      - workspace-data:/workspace
+      # Git configuration
+      - git-config:/home/coder/.config
+      # VS Code settings
+      - vscode-config:/home/coder/.local/share/code-server
+      # SSH keys for Git
+      - ssh-keys:/home/coder/.ssh
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cloudcode.rule=Host(`code.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.cloudcode.tls=true"
+      - "traefik.http.routers.cloudcode.tls.certresolver=letsencrypt"
+    networks:
+      - cloudcode-network
+
+  # Optional: Traefik reverse proxy for SSL
+  traefik:
+    image: traefik:v2.10
+    container_name: cloudcode-traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8081:8080"  # Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "letsencrypt:/letsencrypt"
+    networks:
+      - cloudcode-network
+    profiles:
+      - ssl
+
+volumes:
+  workspace-data:
+    driver: local
+  git-config:
+    driver: local
+  vscode-config:
+    driver: local
+  ssh-keys:
+    driver: local
+  letsencrypt:
+    driver: local
+
+networks:
+  cloudcode-network:
+    driver: bridge

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "/usr/local/bin/start.sh",
+    "healthcheckPath": "/healthz",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "PASSWORD": "YOUR_SECURE_PASSWORD_HERE",
+        "USER": "coder",
+        "WORKSPACE": "/workspace",
+        "PORT": "8080",
+        "GIT_REPO": "",
+        "GIT_TOKEN": "",
+        "RAILWAY_VOLUME_MOUNT_PATH": "/workspace"
+      }
+    }
+  },
+  "volumes": [
+    {
+      "name": "workspace-data",
+      "mountPath": "/workspace"
+    }
+  ]
+}

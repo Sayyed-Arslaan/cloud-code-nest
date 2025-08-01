@@ -1,0 +1,57 @@
+# CloudCode Server - Docker ignore file
+
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+.env.local
+.env.example
+
+# Documentation
+README.md
+*.md
+
+# Node modules (if any)
+node_modules
+npm-debug.log
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Temporary files
+tmp
+temp
+.tmp
+
+# Build artifacts
+dist
+build
+
+# Docker
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile
+
+# Deployment files
+deploy/
